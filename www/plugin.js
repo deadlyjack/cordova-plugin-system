@@ -22,6 +22,10 @@ window.system = {
 
     cordova.exec(onSuccess, onFail, "System", "share-file", [fileUri, filename]);
   },
+  shareViaWhatsapp: function (fileUri, contact, countryCode, onSuccess, onFail) {
+    if (!fileUri || !contact || !countryCode) throw new Error("Missing required parameters!");
+    cordova.exec(onSuccess, onFail, "System", "share-via-whatsapp", [fileUri, contact, countryCode]);
+  },
   sendEmail: function (email, subject, bodyText, bodyHTML, onSuccess, onFail) {
     if (typeof bodyHTML === "function") {
       onSuccess = bodyHTML;

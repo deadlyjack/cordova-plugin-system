@@ -11,6 +11,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.net.Uri;
 import android.support.v4.content.FileProvider;
+import android.content.pm.PackageManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cordova.CallbackContext;
@@ -53,6 +54,9 @@ public class System extends CordovaPlugin {
       return true;
     } else if (action.equals("share-file")) {
       this.shareFile(args.getString(0), args.getString(1), callbackContext);
+      return true;
+    } else if (action.equals("share-via-whatsapp")) {
+      this.shareViaWhatsapp(args.getString(0), args.getString(1), args.getString(2), callbackContext);
       return true;
     } else if (action.equals("send-email")) {
       this.sendEmail(args.getString(0), args.getString(1), args.getString(2), args.getString(3), callbackContext);
@@ -174,6 +178,43 @@ public class System extends CordovaPlugin {
     });
   }
 
+  private void shareViaWhatsapp(final String fileURI, final String contact, final String countryCode,
+      final CallbackContext callbackContext) {
+    final Activity activity = this.activity;
+    final Context context = this.context;
+    final PackageManager pm = context.getPackageManager();
+    cordova.getThreadPool().execute(new Runnable() {
+      public void run() {
+        try {
+          Uri uri = Uri.parse(fileURI);
+          String Id = context.getPackageName();
+          if (fileURI.matches("file:///(.*)")) {
+            File file = new File(uri.getPath());
+            uri = FileProvider.getUriForFile(context, Id + ".provider", file);
+          }
+
+          String packageName = "com.whatsapp";
+
+          if (!isPackageInstalled(packageName, pm)) {
+            packageName = "com.whatsapp.w4b";
+          }
+
+          Intent intent = new Intent("android.intent.action.MAIN");
+          intent.setAction(Intent.ACTION_SEND);
+          intent.putExtra(Intent.EXTRA_STREAM, uri);
+          intent.putExtra("jid", countryCode + contact + "@s.whatsapp.net");
+          intent.setType("application/octet-stream");
+          intent.setPackage(packageName);
+          intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+          context.startActivity(intent);
+          callbackContext.success(contact);
+        } catch (Exception e) {
+          callbackContext.error(e.getMessage());
+        }
+      }
+    });
+  }
+
   private void sendEmail(final String email, final String subject, final String bodyText, final String bodyHTML,
       final CallbackContext callbackContext) {
     final Activity activity = this.activity;
@@ -193,6 +234,15 @@ public class System extends CordovaPlugin {
         }
       }
     });
+  }
+
+  private boolean isPackageInstalled(String packageName, PackageManager packageManager) {
+    try {
+      packageManager.getPackageInfo(packageName, 0);
+      return true;
+    } catch (PackageManager.NameNotFoundException e) {
+      return false;
+    }
   }
 
 }
