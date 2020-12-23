@@ -29,5 +29,6 @@
     <resource-file src="file_provider.xml" target="res/xml/file_provider.xml" />
     <source-file src="src/android/System.java" target-dir="src/com/foxdebug/system"/>
     <config-file target="AndroidManifest.xml" parent="/manifest"></config-file>
+    <lib-file src="src/android/commons-io-2.7.jar" />
   </platform>
 </plugin>
