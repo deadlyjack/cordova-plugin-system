@@ -24,6 +24,7 @@
     <hook type="before_prepare" src="utils/resetProvider.js" />
     <hook type="after_prepare" src="utils/fixProvider.js" />
 
+    <preference name="ANDROID_SUPPORT_VERSION" default="28.+" />
     <framework src="com.android.support:support-v4:$ANDROID_SUPPORT_VERSION" />
     <resource-file src="file_provider.xml" target="res/xml/file_provider.xml" />
     <source-file src="src/android/System.java" target-dir="src/com/foxdebug/system"/>
